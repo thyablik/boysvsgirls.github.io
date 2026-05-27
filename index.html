@@ -1,0 +1,1492 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Хлопці VS Дівчата 🔥</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.2/peerjs.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Russo+One&family=Nunito:wght@400;700;900&display=swap');
+
+  :root {
+    --blue: #1a73e8;
+    --blue-light: #4fc3f7;
+    --pink: #e91e8c;
+    --pink-light: #f48fb1;
+    --gold: #FFD700;
+    --dark: #0d0d1a;
+    --dark2: #12122a;
+    --card: #1a1a35;
+    --text: #f0f0ff;
+    --muted: #8888aa;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--dark);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 20% 50%, rgba(26,115,232,0.12) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 50%, rgba(233,30,140,0.12) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .screen { display: none; position: relative; z-index: 1; }
+  .screen.active { display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding: 20px; }
+
+  h1.logo {
+    font-family: 'Russo One', sans-serif;
+    font-size: clamp(2rem, 6vw, 4rem);
+    text-align: center;
+    margin-bottom: 8px;
+    line-height: 1.1;
+  }
+  .logo .boys { color: var(--blue-light); }
+  .logo .vs { color: var(--gold); font-size: 0.7em; }
+  .logo .girls { color: var(--pink-light); }
+
+  .subtitle { color: var(--muted); font-size: 1rem; margin-bottom: 30px; text-align: center; }
+
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    padding: 14px 32px;
+    border-radius: 50px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 900;
+    font-size: 1.1rem;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .btn:hover { transform: translateY(-2px); filter: brightness(1.15); }
+  .btn:active { transform: scale(0.97); }
+
+  .btn-primary {
+    background: linear-gradient(135deg, #1a73e8, #4fc3f7);
+    color: white;
+    box-shadow: 0 4px 20px rgba(26,115,232,0.4);
+  }
+  .btn-pink {
+    background: linear-gradient(135deg, #e91e8c, #f48fb1);
+    color: white;
+    box-shadow: 0 4px 20px rgba(233,30,140,0.4);
+  }
+  .btn-gold {
+    background: linear-gradient(135deg, #e6a800, #FFD700);
+    color: #1a1a00;
+    box-shadow: 0 4px 20px rgba(255,215,0,0.4);
+  }
+  .btn-dark {
+    background: var(--card);
+    color: var(--text);
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+  .btn-outline-blue {
+    background: transparent;
+    color: var(--blue-light);
+    border: 2px solid var(--blue-light);
+  }
+  .btn-outline-pink {
+    background: transparent;
+    color: var(--pink-light);
+    border: 2px solid var(--pink-light);
+  }
+
+  .card {
+    background: var(--card);
+    border-radius: 20px;
+    padding: 24px;
+    border: 1px solid rgba(255,255,255,0.08);
+    width: 100%;
+    max-width: 500px;
+    margin-bottom: 16px;
+  }
+
+  .input-field {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 12px;
+    padding: 12px 16px;
+    color: var(--text);
+    font-family: 'Nunito', sans-serif;
+    font-size: 1rem;
+    width: 100%;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .input-field:focus { border-color: var(--blue-light); }
+  .input-field::placeholder { color: var(--muted); }
+
+  label { font-size: 0.85rem; color: var(--muted); margin-bottom: 6px; display: block; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+
+  .room-code {
+    font-family: 'Russo One', sans-serif;
+    font-size: 3rem;
+    letter-spacing: 8px;
+    color: var(--gold);
+    text-align: center;
+    text-shadow: 0 0 30px rgba(255,215,0,0.5);
+  }
+
+  /* Teams layout */
+  .teams-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    width: 100%;
+    max-width: 700px;
+    margin-bottom: 16px;
+  }
+  .team-panel {
+    background: var(--card);
+    border-radius: 20px;
+    padding: 16px;
+    border: 2px solid transparent;
+    transition: border-color 0.3s;
+  }
+  .team-panel.boys { border-color: rgba(79,195,247,0.3); }
+  .team-panel.girls { border-color: rgba(244,143,177,0.3); }
+  .team-header {
+    font-family: 'Russo One', sans-serif;
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .team-header.boys { color: var(--blue-light); }
+  .team-header.girls { color: var(--pink-light); }
+  .team-score {
+    font-family: 'Russo One', sans-serif;
+    font-size: 2.5rem;
+  }
+  .team-score.boys { color: var(--blue-light); }
+  .team-score.girls { color: var(--pink-light); }
+  .player-list { margin-top: 8px; }
+  .player-chip {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    margin: 3px;
+  }
+  .player-chip.boys { background: rgba(79,195,247,0.15); color: var(--blue-light); }
+  .player-chip.girls { background: rgba(244,143,177,0.15); color: var(--pink-light); }
+
+  /* Question screen */
+  .question-box {
+    background: var(--card);
+    border-radius: 24px;
+    padding: 28px;
+    max-width: 680px;
+    width: 100%;
+    text-align: center;
+    border: 1px solid rgba(255,255,255,0.1);
+    margin-bottom: 20px;
+  }
+  .question-text {
+    font-family: 'Russo One', sans-serif;
+    font-size: clamp(1.2rem, 3vw, 1.8rem);
+    line-height: 1.4;
+    margin-bottom: 24px;
+  }
+  .answers-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .answer-btn {
+    padding: 16px 12px;
+    border-radius: 16px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 900;
+    font-size: 0.95rem;
+    border: 2px solid rgba(255,255,255,0.15);
+    background: rgba(255,255,255,0.05);
+    color: var(--text);
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+  }
+  .answer-btn:hover { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.3); transform: scale(1.02); }
+  .answer-btn.correct { background: rgba(0,200,100,0.25); border-color: #00c864; color: #00ff7f; }
+  .answer-btn.wrong { background: rgba(255,50,50,0.2); border-color: #ff3232; color: #ff6666; }
+  .answer-btn.selected { background: rgba(79,195,247,0.2); border-color: var(--blue-light); }
+  .answer-btn:disabled { cursor: default; }
+
+  /* Timer */
+  .timer-ring {
+    width: 80px; height: 80px;
+    position: relative;
+    margin: 0 auto 16px;
+  }
+  .timer-ring svg { transform: rotate(-90deg); }
+  .timer-ring .bg { fill: none; stroke: rgba(255,255,255,0.1); stroke-width: 6; }
+  .timer-ring .progress { fill: none; stroke: var(--gold); stroke-width: 6; stroke-linecap: round; transition: stroke-dashoffset 1s linear; }
+  .timer-text {
+    position: absolute;
+    inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Russo One', sans-serif;
+    font-size: 1.5rem;
+    color: var(--gold);
+  }
+
+  /* Scoreboard */
+  .scoreboard-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 12px;
+    margin-bottom: 8px;
+    font-weight: 700;
+  }
+  .rank { font-family: 'Russo One', sans-serif; font-size: 1.3rem; color: var(--muted); width: 30px; }
+  .rank.gold { color: var(--gold); }
+  .rank.silver { color: #c0c0c0; }
+  .rank.bronze { color: #cd7f32; }
+  .player-name { flex: 1; font-size: 1rem; }
+  .player-pts { font-family: 'Russo One', sans-serif; font-size: 1.1rem; }
+
+  /* Mini games panel */
+  .minigame-card {
+    background: var(--card);
+    border-radius: 20px;
+    padding: 20px;
+    max-width: 680px;
+    width: 100%;
+    margin-bottom: 16px;
+    border: 1px solid rgba(255,255,255,0.08);
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex; align-items: center; gap: 16px;
+  }
+  .minigame-card:hover { border-color: rgba(255,215,0,0.4); transform: translateY(-2px); }
+  .minigame-icon { font-size: 2.5rem; }
+  .minigame-info h3 { font-family: 'Russo One', sans-serif; font-size: 1.1rem; margin-bottom: 4px; }
+  .minigame-info p { color: var(--muted); font-size: 0.85rem; }
+
+  /* Buzz screen */
+  .buzz-btn {
+    width: 180px; height: 180px;
+    border-radius: 50%;
+    font-family: 'Russo One', sans-serif;
+    font-size: 1.8rem;
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column;
+    gap: 4px;
+    text-transform: uppercase;
+  }
+  .buzz-btn:active { transform: scale(0.92); }
+  .buzz-btn.boys-buzz {
+    background: radial-gradient(circle, #4fc3f7, #1a73e8);
+    color: white;
+    box-shadow: 0 8px 40px rgba(26,115,232,0.6);
+  }
+  .buzz-btn.girls-buzz {
+    background: radial-gradient(circle, #f48fb1, #e91e8c);
+    color: white;
+    box-shadow: 0 8px 40px rgba(233,30,140,0.6);
+  }
+  .buzz-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
+
+  /* Progress bar */
+  .progress-bar { width: 100%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; margin-bottom: 20px; max-width: 500px; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, var(--blue-light), var(--pink-light)); border-radius: 3px; transition: width 0.5s; }
+
+  /* Badges */
+  .badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .badge-blue { background: rgba(79,195,247,0.2); color: var(--blue-light); }
+  .badge-pink { background: rgba(244,143,177,0.2); color: var(--pink-light); }
+  .badge-gold { background: rgba(255,215,0,0.2); color: var(--gold); }
+
+  /* Winner screen */
+  .winner-banner {
+    font-family: 'Russo One', sans-serif;
+    font-size: clamp(2rem, 8vw, 5rem);
+    text-align: center;
+    animation: pulseWin 1s ease-in-out infinite alternate;
+  }
+  @keyframes pulseWin {
+    from { transform: scale(1); }
+    to { transform: scale(1.05); }
+  }
+  .confetti-emoji { font-size: 3rem; animation: float 2s ease-in-out infinite; }
+  @keyframes float {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(-15px); }
+  }
+
+  .flex-row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; justify-content: center; }
+  .mt-16 { margin-top: 16px; }
+  .mt-8 { margin-top: 8px; }
+  .mb-16 { margin-bottom: 16px; }
+  .text-center { text-align: center; }
+  .w-full { width: 100%; }
+  .max-w { max-width: 500px; width: 100%; }
+
+  /* Notification toast */
+  #toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: var(--card);
+    border: 1px solid rgba(255,255,255,0.15);
+    padding: 12px 24px;
+    border-radius: 50px;
+    font-weight: 700;
+    transition: transform 0.3s;
+    z-index: 999;
+    white-space: nowrap;
+  }
+  #toast.show { transform: translateX(-50%) translateY(0); }
+
+  .result-message {
+    font-family: 'Russo One', sans-serif;
+    font-size: 1.5rem;
+    text-align: center;
+    padding: 16px;
+    border-radius: 16px;
+    margin-bottom: 16px;
+    max-width: 500px;
+    width: 100%;
+  }
+  .result-message.win { background: rgba(0,200,100,0.15); color: #00ff7f; }
+  .result-message.lose { background: rgba(255,50,50,0.1); color: #ff6666; }
+
+  /* Connection status */
+  .conn-dot {
+    display: inline-block;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #ff4444;
+    margin-right: 6px;
+  }
+  .conn-dot.connected { background: #00ff88; box-shadow: 0 0 8px #00ff88; }
+
+  /* Voting */
+  .vote-option {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 18px;
+    border-radius: 14px;
+    border: 2px solid rgba(255,255,255,0.1);
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: 700;
+    font-size: 1rem;
+  }
+  .vote-option:hover { border-color: var(--gold); background: rgba(255,215,0,0.05); }
+  .vote-option.voted { border-color: var(--gold); background: rgba(255,215,0,0.12); }
+  .vote-bar-wrap { width: 60%; height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden; }
+  .vote-bar { height: 100%; background: linear-gradient(90deg, var(--gold), #ff9500); border-radius: 4px; transition: width 0.5s; }
+
+  /* Connecting overlay */
+  #connectingOverlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(13,13,26,0.85);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 16px;
+  }
+  #connectingOverlay.show { display: flex; }
+  .spinner {
+    width: 50px; height: 50px;
+    border: 4px solid rgba(255,255,255,0.1);
+    border-top-color: var(--blue-light);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  @media (max-width: 480px) {
+    .answers-grid { grid-template-columns: 1fr; }
+    .teams-grid { grid-template-columns: 1fr; }
+    .buzz-btn { width: 140px; height: 140px; font-size: 1.4rem; }
+  }
+</style>
+</head>
+<body>
+
+<div id="toast"></div>
+<div id="connectingOverlay">
+  <div class="spinner"></div>
+  <div style="font-family:'Russo One',sans-serif;font-size:1.2rem;">Підключення...</div>
+</div>
+
+<!-- ===== SCREEN: WELCOME ===== -->
+<div id="screen-welcome" class="screen active">
+  <div style="margin-bottom:8px; margin-top: 40px;">
+    <span style="font-size:4rem;">🎮</span>
+  </div>
+  <h1 class="logo">
+    <span class="boys">ХЛОПЦІ</span><br>
+    <span class="vs">VS</span><br>
+    <span class="girls">ДІВЧАТА</span>
+  </h1>
+  <p class="subtitle">Jackbox-стиль • PeerJS Мультиплеєр</p>
+
+  <div class="card">
+    <h3 style="font-family:'Russo One',sans-serif; font-size:1.1rem; margin-bottom:16px; color:var(--gold);">🎯 ЩО РОБИТИ?</h3>
+    <div style="display:flex; flex-direction:column; gap:10px; color:var(--muted); font-size:0.9rem; line-height:1.5;">
+      <div>🖥️ <strong style="color:var(--text);">ХОСТ</strong> — запускає гру і показує питання на великому екрані</div>
+      <div>📱 <strong style="color:var(--blue-light);">ХЛОПЦІ</strong> — вводять код кімнати і приєднуються до синьої команди</div>
+      <div>📱 <strong style="color:var(--pink-light);">ДІВЧАТА</strong> — вводять код кімнати і приєднуються до рожевої команди</div>
+    </div>
+  </div>
+
+  <div class="flex-row mt-16">
+    <button class="btn btn-gold" onclick="startHost()">🖥️ Я ХОСТ</button>
+    <button class="btn btn-outline-blue" onclick="showJoin('boys')">👦 Хлопці</button>
+    <button class="btn btn-outline-pink" onclick="showJoin('girls')">👧 Дівчата</button>
+  </div>
+</div>
+
+<!-- ===== SCREEN: JOIN ===== -->
+<div id="screen-join" class="screen">
+  <div style="margin-top:40px; margin-bottom:20px; text-align:center;">
+    <div id="joinTeamIcon" style="font-size:4rem;"></div>
+    <h2 id="joinTeamTitle" style="font-family:'Russo One',sans-serif; font-size:1.8rem; margin-top:8px;"></h2>
+  </div>
+  <div class="card">
+    <label>Твоє ім'я</label>
+    <input id="playerName" class="input-field" type="text" placeholder="Введи своє ім'я..." maxlength="20" style="margin-bottom:16px;">
+    <label>Код кімнати (від хоста)</label>
+    <input id="roomCode" class="input-field" type="text" placeholder="Наприклад: AB12" maxlength="6" style="text-transform:uppercase;">
+  </div>
+  <div class="flex-row mt-16">
+    <button id="joinBtn" class="btn btn-primary" onclick="joinRoom()">🎮 ПРИЄДНАТИСЬ</button>
+    <button class="btn btn-dark" onclick="showScreen('screen-welcome')">← Назад</button>
+  </div>
+</div>
+
+<!-- ===== SCREEN: HOST LOBBY ===== -->
+<div id="screen-host-lobby" class="screen">
+  <h2 style="font-family:'Russo One',sans-serif; font-size:1.5rem; margin-top:30px; margin-bottom:8px; color:var(--gold);">🏠 КІМНАТА ХОСТА</h2>
+  <p class="subtitle">Код для гравців:</p>
+  <div class="room-code" id="displayRoomCode">----</div>
+  <p class="subtitle mt-8" style="font-size:0.8rem;">Гравці вводять цей код на своїх телефонах</p>
+
+  <div class="teams-grid mt-16">
+    <div class="team-panel boys">
+      <div class="team-header boys">👦 Хлопці <span id="boysCount" class="badge badge-blue">0</span></div>
+      <div id="boysList" class="player-list" style="color:var(--muted); font-size:0.85rem; min-height:30px;">Чекаємо...</div>
+    </div>
+    <div class="team-panel girls">
+      <div class="team-header girls">👧 Дівчата <span id="girlsCount" class="badge badge-pink">0</span></div>
+      <div id="girlsList" class="player-list" style="color:var(--muted); font-size:0.85rem; min-height:30px;">Чекаємо...</div>
+    </div>
+  </div>
+
+  <button id="startGameBtn" class="btn btn-gold mt-16" onclick="startGame()" disabled>
+    ⚡ ПОЧАТИ ГРУ
+  </button>
+  <p style="color:var(--muted); font-size:0.8rem; margin-top:8px;">Потрібно хоча б 1 гравець в кожній команді</p>
+</div>
+
+<!-- ===== SCREEN: PLAYER LOBBY ===== -->
+<div id="screen-player-lobby" class="screen">
+  <div style="margin-top:60px; text-align:center;">
+    <div id="playerTeamIcon" style="font-size:5rem; animation:float 2s ease-in-out infinite;"></div>
+    <h2 id="playerTeamName" style="font-family:'Russo One',sans-serif; font-size:2rem; margin-top:16px;"></h2>
+    <p id="playerWelcome" style="color:var(--muted); margin-top:8px; font-size:1.1rem;"></p>
+    <div id="lobbyStatus" style="margin-top:30px; color:var(--muted);">
+      <div class="spinner" style="margin: 0 auto 16px; border-top-color:var(--gold);"></div>
+      Чекаємо поки хост почне гру...
+    </div>
+  </div>
+</div>
+
+<!-- ===== SCREEN: GAME SELECT (HOST) ===== -->
+<div id="screen-game-select" class="screen">
+  <h2 style="font-family:'Russo One',sans-serif; font-size:1.5rem; margin-top:30px; margin-bottom:6px;">🎯 ОБЕРІТЬ МІН-ІГРУ</h2>
+  <div class="teams-grid mb-16" style="max-width:500px;">
+    <div style="text-align:center;">
+      <div class="team-score boys" id="scoreBoysSelect">0</div>
+      <div style="color:var(--blue-light); font-size:0.8rem; font-weight:700;">👦 ХЛОПЦІ</div>
+    </div>
+    <div style="text-align:center;">
+      <div class="team-score girls" id="scoreGirlsSelect">0</div>
+      <div style="color:var(--pink-light); font-size:0.8rem; font-weight:700;">👧 ДІВЧАТА</div>
+    </div>
+  </div>
+
+  <div class="progress-bar"><div class="progress-fill" id="gameProgressFill" style="width:0%"></div></div>
+  <p style="color:var(--muted); font-size:0.85rem; margin-bottom:16px;" id="roundCounter">Раунд 1 / 5</p>
+
+  <div class="minigame-card" onclick="hostStartMinigame('quiz')">
+    <div class="minigame-icon">🧠</div>
+    <div class="minigame-info">
+      <h3>ВІКТОРИНА</h3>
+      <p>Питання з варіантами — хто швидше і правильніше відповість</p>
+    </div>
+    <span class="badge badge-gold">+100 очок</span>
+  </div>
+  <div class="minigame-card" onclick="hostStartMinigame('buzz')">
+    <div class="minigame-icon">⚡</div>
+    <div class="minigame-info">
+      <h3>БУЗЕР</h3>
+      <p>Натисни першим! Хто швидший — той відповідає</p>
+    </div>
+    <span class="badge badge-gold">+150 очок</span>
+  </div>
+  <div class="minigame-card" onclick="hostStartMinigame('vote')">
+    <div class="minigame-icon">🗳️</div>
+    <div class="minigame-info">
+      <h3>ГОЛОСУВАННЯ</h3>
+      <p>Проголосуй за свій варіант — більшість виграє!</p>
+    </div>
+    <span class="badge badge-gold">+120 очок</span>
+  </div>
+
+  <button class="btn btn-primary mt-16" onclick="showFinalResults()">🏆 Показати результати</button>
+</div>
+
+<!-- ===== SCREEN: QUIZ HOST ===== -->
+<div id="screen-quiz-host" class="screen">
+  <h2 style="font-family:'Russo One',sans-serif; font-size:1.3rem; margin-top:20px; color:var(--gold);">🧠 ВІКТОРИНА</h2>
+  <div class="teams-grid mb-16" style="max-width:500px;">
+    <div style="text-align:center;"><div class="team-score boys" id="scoreBoysQuiz">0</div><div style="color:var(--blue-light); font-size:0.8rem; font-weight:700;">👦</div></div>
+    <div style="text-align:center;"><div class="team-score girls" id="scoreGirlsQuiz">0</div><div style="color:var(--pink-light); font-size:0.8rem; font-weight:700;">👧</div></div>
+  </div>
+  <div class="timer-ring">
+    <svg viewBox="0 0 80 80" width="80" height="80">
+      <circle class="bg" cx="40" cy="40" r="34"/>
+      <circle class="progress" id="timerCircle" cx="40" cy="40" r="34" stroke-dasharray="213.6" stroke-dashoffset="0"/>
+    </svg>
+    <div class="timer-text" id="timerText">15</div>
+  </div>
+  <div class="question-box">
+    <div style="color:var(--muted); font-size:0.8rem; margin-bottom:8px;" id="questionNum">Питання 1/5</div>
+    <div class="question-text" id="hostQuestionText">...</div>
+    <div class="answers-grid" id="hostAnswers"></div>
+  </div>
+  <div id="quizAnswerStatus" style="color:var(--muted); font-size:0.9rem; min-height:24px; text-align:center;"></div>
+  <button class="btn btn-gold mt-16" id="quizNextBtn" onclick="quizNext()" style="display:none;">ДАЛІ →</button>
+</div>
+
+<!-- ===== SCREEN: QUIZ PLAYER ===== -->
+<div id="screen-quiz-player" class="screen">
+  <h2 style="font-family:'Russo One',sans-serif; font-size:1.3rem; margin-top:20px; color:var(--gold);">🧠 ВІКТОРИНА</h2>
+  <div class="timer-ring">
+    <svg viewBox="0 0 80 80" width="80" height="80">
+      <circle class="bg" cx="40" cy="40" r="34"/>
+      <circle class="progress" id="pTimerCircle" cx="40" cy="40" r="34" stroke-dasharray="213.6" stroke-dashoffset="0"/>
+    </svg>
+    <div class="timer-text" id="pTimerText">15</div>
+  </div>
+  <div class="question-box">
+    <div class="question-text" id="playerQuestionText">Чекаємо питання...</div>
+    <div class="answers-grid" id="playerAnswers"></div>
+  </div>
+  <div id="playerAnswerResult" style="font-family:'Russo One',sans-serif; font-size:1.3rem; text-align:center; min-height:36px;"></div>
+</div>
+
+<!-- ===== SCREEN: BUZZ HOST ===== -->
+<div id="screen-buzz-host" class="screen">
+  <h2 style="font-family:'Russo One',sans-serif; font-size:1.3rem; margin-top:20px; color:var(--gold);">⚡ БУЗЕР</h2>
+  <div class="teams-grid mb-16" style="max-width:500px;">
+    <div style="text-align:center;"><div class="team-score boys" id="scoreBoysBuzz">0</div><div style="color:var(--blue-light); font-size:0.8rem; font-weight:700;">👦</div></div>
+    <div style="text-align:center;"><div class="team-score girls" id="scoreGirlsBuzz">0</div><div style="color:var(--pink-light); font-size:0.8rem; font-weight:700;">👧</div></div>
+  </div>
+  <div class="question-box">
+    <div class="question-text" id="buzzQuestion">...</div>
+  </div>
+  <div id="buzzStatus" style="font-family:'Russo One',sans-serif; font-size:1.5rem; text-align:center; min-height:50px; padding:16px;">
+    Гравці тиснуть бузер! ⚡
+  </div>
+  <div id="buzzAnswer" style="font-size:0.9rem; color:var(--muted); text-align:center;">Правильна відповідь: <span id="buzzCorrectAns" style="color:var(--gold);"></span></div>
+  <div class="flex-row mt-16">
+    <button class="btn btn-primary" id="buzzGivePointBtn" onclick="buzzGivePoint()" style="display:none;">✅ Вірна відповідь!</button>
+    <button class="btn btn-dark" id="buzzWrongBtn" onclick="buzzWrong()" style="display:none;">❌ Невірно</button>
+    <button class="btn btn-gold" id="buzzNextBtn" onclick="buzzNext()" style="display:none;">ДАЛІ →</button>
+  </div>
+</div>
+
+<!-- ===== SCREEN: BUZZ PLAYER ===== -->
+<div id="screen-buzz-player" class="screen">
+  <h2 style="font-family:'Russo One',sans-serif; font-size:1.3rem; margin-top:20px; color:var(--gold);">⚡ БУЗЕР</h2>
+  <div class="question-box">
+    <div class="question-text" id="playerBuzzQuestion">Чекаємо питання...</div>
+  </div>
+  <div style="display:flex; justify-content:center; margin-top:20px;">
+    <button id="buzzPlayerBtn" class="buzz-btn" onclick="playerBuzz()">
+      <span style="font-size:2rem;">⚡</span>
+      <span>БУМ!</span>
+    </button>
+  </div>
+  <div id="buzzPlayerStatus" style="font-family:'Russo One',sans-serif; font-size:1.2rem; text-align:center; margin-top:20px; min-height:40px;"></div>
+</div>
+
+<!-- ===== SCREEN: VOTE HOST ===== -->
+<div id="screen-vote-host" class="screen">
+  <h2 style="font-family:'Russo One',sans-serif; font-size:1.3rem; margin-top:20px; color:var(--gold);">🗳️ ГОЛОСУВАННЯ</h2>
+  <div class="teams-grid mb-16" style="max-width:500px;">
+    <div style="text-align:center;"><div class="team-score boys" id="scoreBoysVote">0</div><div style="color:var(--blue-light); font-size:0.8rem; font-weight:700;">👦</div></div>
+    <div style="text-align:center;"><div class="team-score girls" id="scoreGirlsVote">0</div><div style="color:var(--pink-light); font-size:0.8rem; font-weight:700;">👧</div></div>
+  </div>
+  <div class="question-box" style="text-align:left;">
+    <div class="question-text" id="voteQuestion" style="margin-bottom:20px;">...</div>
+    <div id="voteOptions"></div>
+  </div>
+  <div id="voteCountStatus" style="color:var(--muted); text-align:center; margin-bottom:12px;"></div>
+  <button class="btn btn-gold" id="voteRevealBtn" onclick="revealVotes()" style="display:none;">📊 ПОКАЗАТИ РЕЗУЛЬТАТИ</button>
+  <button class="btn btn-gold" id="voteNextBtn" onclick="voteNext()" style="display:none;">ДАЛІ →</button>
+</div>
+
+<!-- ===== SCREEN: VOTE PLAYER ===== -->
+<div id="screen-vote-player" class="screen">
+  <h2 style="font-family:'Russo One',sans-serif; font-size:1.3rem; margin-top:20px; color:var(--gold);">🗳️ ГОЛОСУВАННЯ</h2>
+  <div class="question-box" style="text-align:left;">
+    <div class="question-text" id="playerVoteQuestion" style="margin-bottom:20px;">...</div>
+    <div id="playerVoteOptions"></div>
+  </div>
+  <div id="votePlayerStatus" style="font-family:'Russo One',sans-serif; font-size:1.2rem; text-align:center; min-height:40px; margin-top:8px;"></div>
+</div>
+
+<!-- ===== SCREEN: RESULTS ===== -->
+<div id="screen-results" class="screen">
+  <h2 style="font-family:'Russo One',sans-serif; font-size:1.5rem; margin-top:30px; margin-bottom:20px;">🏆 РЕЗУЛЬТАТИ</h2>
+  <div class="teams-grid" style="max-width:500px;">
+    <div style="text-align:center; padding:16px;">
+      <div class="team-score boys" id="finalBoysScore" style="font-size:3rem;">0</div>
+      <div style="color:var(--blue-light); font-weight:700; font-size:1.1rem;">👦 ХЛОПЦІ</div>
+    </div>
+    <div style="text-align:center; padding:16px;">
+      <div class="team-score girls" id="finalGirlsScore" style="font-size:3rem;">0</div>
+      <div style="color:var(--pink-light); font-weight:700; font-size:1.1rem;">👧 ДІВЧАТА</div>
+    </div>
+  </div>
+  <div id="winnerBanner" class="winner-banner mt-16 mb-16"></div>
+  <h3 style="font-family:'Russo One',sans-serif; color:var(--gold); margin-bottom:12px;">📊 ОСОБИСТІ РЕЗУЛЬТАТИ</h3>
+  <div id="playerScoreboard" style="width:100%; max-width:500px;"></div>
+  <button class="btn btn-primary mt-16" onclick="restartGame()">🔄 ГРАТИ ЩЕ РАЗ</button>
+</div>
+
+<script>
+// ============================================================
+// GAME DATA
+// ============================================================
+const QUIZ_QUESTIONS = [
+  { q: "Яке місто є столицею України? 🇺🇦", answers: ["Київ", "Львів", "Харків", "Одеса"], correct: 0 },
+  { q: "Скільки кольорів у веселці? 🌈", answers: ["5", "6", "7", "8"], correct: 2 },
+  { q: "Яка найвища гора у світі? ⛰️", answers: ["Монблан", "Евангелін", "Еверест", "Кіліманджаро"], correct: 2 },
+  { q: "Хто написав 'Кобзар'? 📖", answers: ["Франко", "Шевченко", "Леся Українка", "Котляревський"], correct: 1 },
+  { q: "Скільки хвилин у добі? ⏰", answers: ["1000", "1440", "1200", "1500"], correct: 1 },
+  { q: "Яка планета найбільша в Сонячній системі? 🪐", answers: ["Сатурн", "Нептун", "Уран", "Юпітер"], correct: 3 },
+  { q: "Як називається столиця Японії? 🗾", answers: ["Осака", "Токіо", "Кіото", "Сапоро"], correct: 1 },
+  { q: "Яка формула води? 💧", answers: ["CO₂", "H₂O", "NaCl", "O₂"], correct: 1 },
+];
+
+const BUZZ_QUESTIONS = [
+  { q: "Яка тварина є найшвидшою на землі? 🐆", a: "Гепард" },
+  { q: "Скільки планет у Сонячній системі? 🌍", a: "8" },
+  { q: "Хто намалював Мону Лізу? 🖼️", a: "Леонардо да Вінчі" },
+  { q: "Яка найдовша річка у світі? 🌊", a: "Ніл" },
+  { q: "Де народився Тарас Шевченко? 🏡", a: "Моринці, Черкаська обл." },
+];
+
+const VOTE_QUESTIONS = [
+  {
+    q: "Що краще: море чи гори? 🏔️🌊",
+    options: ["🌊 Море — відпочинок і хвилі!", "🏔️ Гори — пригоди і краєвиди!"]
+  },
+  {
+    q: "Кращий фаст-фуд? 🍔🍕",
+    options: ["🍔 Бургер — класика!", "🍕 Піца — завжди вигідно!", "🌮 Тако — найсмачніше!"]
+  },
+  {
+    q: "Яка суперсила найкраща? 🦸",
+    options: ["✈️ Літати", "👻 Невидимість", "⚡ Супершвидкість", "🧠 Читати думки"]
+  },
+];
+
+// ============================================================
+// STATE
+// ============================================================
+let state = {
+  isHost: false,
+  peer: null,
+  hostConn: null,            // player's connection to host
+  playerConns: [],           // host's connections to players
+  roomCode: '',
+  myName: '',
+  myTeam: '',                // 'boys' or 'girls'
+  scores: { boys: 0, girls: 0 },
+  players: [],               // { id, name, team, score, conn }
+  currentMinigame: null,
+  currentQuestionIdx: 0,
+  quizQuestions: [],
+  buzzQuestions: [],
+  voteQuestions: [],
+  roundNumber: 0,
+  totalRounds: 5,
+  timerInterval: null,
+  timerValue: 0,
+  answers: {},               // host: { playerId: answerIdx }
+  buzzWinner: null,
+  votes: {},                 // { optionIdx: [playerIds] }
+  myVote: null,
+};
+
+// ============================================================
+// UTILS
+// ============================================================
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function showToast(msg, duration = 2500) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), duration);
+}
+
+function showConnecting(v) {
+  const el = document.getElementById('connectingOverlay');
+  el.classList.toggle('show', v);
+}
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function generateCode() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  return Array.from({length: 4}, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+}
+
+function updateScoreDisplays() {
+  ['Boys', 'Girls', 'Quiz', 'Buzz', 'Vote', 'Select'].forEach(s => {
+    const b = document.getElementById('scoreBoysScore' + s) || document.getElementById('scoreBoys' + s);
+    const g = document.getElementById('scoreGirlsScore' + s) || document.getElementById('scoreGirls' + s);
+    if (b) b.textContent = state.scores.boys;
+    if (g) g.textContent = state.scores.girls;
+  });
+  ['scoreBoysSelect', 'scoreGirlsSelect', 'scoreBoysQuiz', 'scoreGirlsQuiz',
+   'scoreBoysBuzz', 'scoreGirlsBuzz', 'scoreBoysVote', 'scoreGirlsVote'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = id.includes('Boys') ? state.scores.boys : state.scores.girls;
+  });
+}
+
+// ============================================================
+// HOST SETUP
+// ============================================================
+function startHost() {
+  state.isHost = true;
+  state.roomCode = generateCode();
+  showConnecting(true);
+
+  state.peer = new Peer('hvg-' + state.roomCode, {
+    host: 'peerjs.com', secure: true, port: 443
+  });
+
+  state.peer.on('open', () => {
+    showConnecting(false);
+    document.getElementById('displayRoomCode').textContent = state.roomCode;
+    showScreen('screen-host-lobby');
+  });
+
+  state.peer.on('connection', (conn) => {
+    conn.on('data', (data) => handleHostReceive(conn, data));
+    conn.on('close', () => {
+      state.players = state.players.filter(p => p.id !== conn.peer);
+      updateLobby();
+    });
+    conn.on('error', () => {});
+  });
+
+  state.peer.on('error', (err) => {
+    showConnecting(false);
+    showToast('Помилка: ' + err.message);
+    // Try alternate code
+    state.roomCode = generateCode();
+    document.getElementById('displayRoomCode').textContent = state.roomCode;
+  });
+}
+
+function handleHostReceive(conn, data) {
+  const { type, payload } = data;
+
+  if (type === 'join') {
+    const existing = state.players.find(p => p.id === conn.peer);
+    if (!existing) {
+      state.players.push({ id: conn.peer, name: payload.name, team: payload.team, score: 0, conn });
+    }
+    conn.send({ type: 'joined', payload: { name: payload.name, team: payload.team } });
+    updateLobby();
+    // Check start btn
+    const boys = state.players.filter(p => p.team === 'boys').length;
+    const girls = state.players.filter(p => p.team === 'girls').length;
+    document.getElementById('startGameBtn').disabled = !(boys > 0 && girls > 0);
+  }
+
+  if (type === 'quiz_answer') {
+    state.answers[conn.peer] = payload.idx;
+    const total = state.players.length;
+    const answered = Object.keys(state.answers).length;
+    const el = document.getElementById('quizAnswerStatus');
+    if (el) el.textContent = `Відповіли: ${answered}/${total}`;
+    if (answered >= total) {
+      clearInterval(state.timerInterval);
+      revealQuizAnswers();
+    }
+  }
+
+  if (type === 'buzz') {
+    if (!state.buzzWinner) {
+      state.buzzWinner = { id: conn.peer, name: payload.name, team: payload.team };
+      broadcastAll({ type: 'buzz_locked', payload: { winner: payload.name, team: payload.team } });
+      const statusEl = document.getElementById('buzzStatus');
+      const color = payload.team === 'boys' ? 'var(--blue-light)' : 'var(--pink-light)';
+      const icon = payload.team === 'boys' ? '👦' : '👧';
+      if (statusEl) statusEl.innerHTML = `<span style="color:${color}">${icon} ${payload.name} натиснув першим!</span>`;
+      document.getElementById('buzzGivePointBtn').style.display = 'inline-flex';
+      document.getElementById('buzzWrongBtn').style.display = 'inline-flex';
+    }
+  }
+
+  if (type === 'vote') {
+    const opt = payload.optionIdx;
+    if (!state.votes[opt]) state.votes[opt] = [];
+    if (!state.votes[opt].includes(conn.peer)) state.votes[opt].push(conn.peer);
+    updateVoteDisplay();
+    const total = state.players.length;
+    const voted = Object.values(state.votes).flat().length;
+    const el = document.getElementById('voteCountStatus');
+    if (el) el.textContent = `Проголосували: ${voted}/${total}`;
+    if (voted >= total) {
+      document.getElementById('voteRevealBtn').style.display = 'inline-flex';
+    }
+  }
+}
+
+function updateLobby() {
+  const boys = state.players.filter(p => p.team === 'boys');
+  const girls = state.players.filter(p => p.team === 'girls');
+  document.getElementById('boysCount').textContent = boys.length;
+  document.getElementById('girlsCount').textContent = girls.length;
+  document.getElementById('boysList').innerHTML = boys.length
+    ? boys.map(p => `<span class="player-chip boys">${p.name}</span>`).join('')
+    : '<span style="color:var(--muted)">Чекаємо...</span>';
+  document.getElementById('girlsList').innerHTML = girls.length
+    ? girls.map(p => `<span class="player-chip girls">${p.name}</span>`).join('')
+    : '<span style="color:var(--muted)">Чекаємо...</span>';
+  document.getElementById('startGameBtn').disabled = !(boys.length > 0 && girls.length > 0);
+}
+
+function broadcastAll(data) {
+  state.players.forEach(p => {
+    try { p.conn.send(data); } catch(e) {}
+  });
+}
+
+// ============================================================
+// JOIN ROOM
+// ============================================================
+let joiningTeam = 'boys';
+
+function showJoin(team) {
+  joiningTeam = team;
+  const icon = team === 'boys' ? '👦' : '👧';
+  const title = team === 'boys' ? 'КОМАНДА ХЛОПЦІВ' : 'КОМАНДА ДІВЧАТ';
+  const color = team === 'boys' ? 'var(--blue-light)' : 'var(--pink-light)';
+  document.getElementById('joinTeamIcon').textContent = icon;
+  document.getElementById('joinTeamTitle').textContent = title;
+  document.getElementById('joinTeamTitle').style.color = color;
+  document.getElementById('joinBtn').className = 'btn ' + (team === 'boys' ? 'btn-primary' : 'btn-pink');
+  showScreen('screen-join');
+}
+
+function joinRoom() {
+  const name = document.getElementById('playerName').value.trim();
+  const code = document.getElementById('roomCode').value.trim().toUpperCase();
+  if (!name) { showToast('Введи своє ім\'я!'); return; }
+  if (!code || code.length < 4) { showToast('Введи код кімнати!'); return; }
+
+  state.myName = name;
+  state.myTeam = joiningTeam;
+  state.roomCode = code;
+
+  showConnecting(true);
+
+  state.peer = new Peer(undefined, { host: 'peerjs.com', secure: true, port: 443 });
+
+  state.peer.on('open', () => {
+    const conn = state.peer.connect('hvg-' + code, { reliable: true });
+    state.hostConn = conn;
+
+    conn.on('open', () => {
+      conn.send({ type: 'join', payload: { name, team: joiningTeam } });
+    });
+
+    conn.on('data', (data) => handlePlayerReceive(data));
+
+    conn.on('error', () => {
+      showConnecting(false);
+      showToast('Помилка підключення!');
+    });
+
+    conn.on('close', () => {
+      showToast('З\'єднання з хостом втрачено!');
+    });
+  });
+
+  state.peer.on('error', () => {
+    showConnecting(false);
+    showToast('Не вдалося підключитись. Перевір код!');
+  });
+
+  setTimeout(() => {
+    if (showConnecting) showConnecting(false);
+  }, 8000);
+}
+
+function handlePlayerReceive(data) {
+  const { type, payload } = data;
+
+  if (type === 'joined') {
+    showConnecting(false);
+    const icon = state.myTeam === 'boys' ? '👦' : '👧';
+    const teamName = state.myTeam === 'boys' ? '💙 ХЛОПЦІ' : '💗 ДІВЧАТА';
+    const color = state.myTeam === 'boys' ? 'var(--blue-light)' : 'var(--pink-light)';
+    document.getElementById('playerTeamIcon').textContent = icon;
+    document.getElementById('playerTeamName').textContent = teamName;
+    document.getElementById('playerTeamName').style.color = color;
+    document.getElementById('playerWelcome').textContent = `Привіт, ${state.myName}! Ти у грі 🎮`;
+    showScreen('screen-player-lobby');
+  }
+
+  if (type === 'start_quiz') {
+    const q = payload.question;
+    state.currentQuestionIdx = payload.idx;
+    showScreen('screen-quiz-player');
+    renderPlayerQuestion(q);
+    startPlayerTimer(15);
+  }
+
+  if (type === 'quiz_reveal') {
+    showQuizRevealPlayer(payload);
+  }
+
+  if (type === 'start_buzz') {
+    state.buzzWinner = null;
+    showScreen('screen-buzz-player');
+    document.getElementById('playerBuzzQuestion').textContent = payload.question;
+    document.getElementById('buzzPlayerStatus').textContent = '';
+    const btn = document.getElementById('buzzPlayerBtn');
+    btn.disabled = false;
+    btn.className = 'buzz-btn ' + (state.myTeam === 'boys' ? 'boys-buzz' : 'girls-buzz');
+    startPlayerTimer(null);
+  }
+
+  if (type === 'buzz_locked') {
+    document.getElementById('buzzPlayerStatus').textContent =
+      payload.winner === state.myName
+        ? '⚡ ТИ ПЕРШИМ(ОЮ)! Відповідай!'
+        : `⏳ ${payload.winner} вже натиснув(ла)!`;
+    document.getElementById('buzzPlayerBtn').disabled = true;
+  }
+
+  if (type === 'start_vote') {
+    state.myVote = null;
+    showScreen('screen-vote-player');
+    document.getElementById('playerVoteQuestion').textContent = payload.question;
+    renderPlayerVoteOptions(payload.options);
+    document.getElementById('votePlayerStatus').textContent = '';
+  }
+
+  if (type === 'vote_reveal') {
+    document.getElementById('votePlayerStatus').textContent = payload.winMsg;
+  }
+
+  if (type === 'score_update') {
+    state.scores = payload.scores;
+    updateScoreDisplays();
+  }
+
+  if (type === 'game_over') {
+    state.scores = payload.scores;
+    showFinalResultsPlayer(payload);
+  }
+}
+
+// ============================================================
+// GAME START
+// ============================================================
+function startGame() {
+  state.quizQuestions = shuffle(QUIZ_QUESTIONS).slice(0, 5);
+  state.buzzQuestions = shuffle(BUZZ_QUESTIONS).slice(0, 3);
+  state.voteQuestions = shuffle(VOTE_QUESTIONS).slice(0, 2);
+  state.roundNumber = 0;
+  state.scores = { boys: 0, girls: 0 };
+  updateScoreDisplays();
+  broadcastAll({ type: 'score_update', payload: { scores: state.scores } });
+  showScreen('screen-game-select');
+  updateRoundCounter();
+}
+
+function updateRoundCounter() {
+  const el = document.getElementById('roundCounter');
+  if (el) el.textContent = `Раунд ${state.roundNumber + 1} / ${state.totalRounds}`;
+  const fill = document.getElementById('gameProgressFill');
+  if (fill) fill.style.width = (state.roundNumber / state.totalRounds * 100) + '%';
+}
+
+// ============================================================
+// QUIZ MINIGAME
+// ============================================================
+let quizQIdx = 0;
+
+function hostStartMinigame(type) {
+  state.currentMinigame = type;
+  state.roundNumber++;
+  updateRoundCounter();
+
+  if (type === 'quiz') {
+    quizQIdx = 0;
+    hostShowQuizQuestion();
+  } else if (type === 'buzz') {
+    hostShowBuzzQuestion();
+  } else if (type === 'vote') {
+    hostShowVoteQuestion();
+  }
+}
+
+function hostShowQuizQuestion() {
+  const q = state.quizQuestions[quizQIdx % state.quizQuestions.length];
+  state.answers = {};
+
+  document.getElementById('questionNum').textContent = `Питання ${quizQIdx + 1}/${Math.min(3, state.quizQuestions.length)}`;
+  document.getElementById('hostQuestionText').textContent = q.q;
+
+  const grid = document.getElementById('hostAnswers');
+  grid.innerHTML = q.answers.map((a, i) =>
+    `<div class="answer-btn" id="hostAns${i}">${['🅰️','🅱️','🆎','🆑'][i]} ${a}</div>`
+  ).join('');
+
+  document.getElementById('quizAnswerStatus').textContent = `Відповіли: 0/${state.players.length}`;
+  document.getElementById('quizNextBtn').style.display = 'none';
+
+  broadcastAll({ type: 'start_quiz', payload: { question: q, idx: quizQIdx } });
+  showScreen('screen-quiz-host');
+  startHostTimer(15, () => revealQuizAnswers());
+}
+
+function startHostTimer(secs, onEnd) {
+  clearInterval(state.timerInterval);
+  state.timerValue = secs;
+  const circle = document.getElementById('timerCircle');
+  const text = document.getElementById('timerText');
+  const total = 213.6;
+  if (circle) circle.style.strokeDashoffset = 0;
+  if (text) text.textContent = secs;
+
+  state.timerInterval = setInterval(() => {
+    state.timerValue--;
+    const pct = state.timerValue / secs;
+    if (circle) circle.style.strokeDashoffset = total * (1 - pct);
+    if (text) text.textContent = state.timerValue;
+    if (state.timerValue <= 0) {
+      clearInterval(state.timerInterval);
+      if (onEnd) onEnd();
+    }
+  }, 1000);
+}
+
+function startPlayerTimer(secs) {
+  clearInterval(state.timerInterval);
+  const circle = document.getElementById('pTimerCircle');
+  const text = document.getElementById('pTimerText');
+  if (!circle) return;
+  const total = 213.6;
+  let val = secs || 15;
+  circle.style.strokeDashoffset = 0;
+  text.textContent = val;
+  state.timerInterval = setInterval(() => {
+    val--;
+    const pct = val / (secs || 15);
+    circle.style.strokeDashoffset = total * (1 - pct);
+    text.textContent = val;
+    if (val <= 0) clearInterval(state.timerInterval);
+  }, 1000);
+}
+
+function renderPlayerQuestion(q) {
+  document.getElementById('playerQuestionText').textContent = q.q;
+  const grid = document.getElementById('playerAnswers');
+  grid.innerHTML = q.answers.map((a, i) =>
+    `<button class="answer-btn" onclick="playerAnswer(${i})">${['🅰️','🅱️','🆎','🆑'][i]} ${a}</button>`
+  ).join('');
+  document.getElementById('playerAnswerResult').textContent = '';
+}
+
+function playerAnswer(idx) {
+  clearInterval(state.timerInterval);
+  const btns = document.querySelectorAll('#playerAnswers .answer-btn');
+  btns.forEach((b, i) => { b.disabled = true; if (i === idx) b.classList.add('selected'); });
+  state.hostConn.send({ type: 'quiz_answer', payload: { idx, name: state.myName, team: state.myTeam } });
+}
+
+function revealQuizAnswers() {
+  clearInterval(state.timerInterval);
+  const q = state.quizQuestions[quizQIdx % state.quizQuestions.length];
+  const correct = q.correct;
+
+  // Highlight on host
+  q.answers.forEach((_, i) => {
+    const el = document.getElementById('hostAns' + i);
+    if (el) el.classList.add(i === correct ? 'correct' : 'wrong');
+  });
+
+  // Award points
+  let boysCorrect = 0, girlsCorrect = 0;
+  state.players.forEach(p => {
+    const ans = state.answers[p.id];
+    if (ans === correct) {
+      p.score += 100;
+      if (p.team === 'boys') boysCorrect++;
+      else girlsCorrect++;
+    }
+  });
+
+  if (boysCorrect > girlsCorrect) state.scores.boys += 100;
+  else if (girlsCorrect > boysCorrect) state.scores.girls += 100;
+  else { state.scores.boys += 50; state.scores.girls += 50; }
+
+  updateScoreDisplays();
+  broadcastAll({ type: 'quiz_reveal', payload: { correct, scores: state.scores } });
+  broadcastAll({ type: 'score_update', payload: { scores: state.scores } });
+
+  document.getElementById('quizNextBtn').style.display = 'inline-flex';
+
+  const msg = boysCorrect > girlsCorrect ? '👦 Хлопці отримують бали!' :
+              girlsCorrect > boysCorrect ? '👧 Дівчата отримують бали!' : '🤝 Нічия — всі отримують бали!';
+  document.getElementById('quizAnswerStatus').textContent = msg;
+}
+
+function showQuizRevealPlayer({ correct }) {
+  clearInterval(state.timerInterval);
+  const btns = document.querySelectorAll('#playerAnswers .answer-btn');
+  btns.forEach((b, i) => {
+    b.disabled = true;
+    if (i === correct) b.classList.add('correct');
+    else b.classList.add('wrong');
+  });
+  const wasSelected = document.querySelector('#playerAnswers .answer-btn.selected');
+  const resultEl = document.getElementById('playerAnswerResult');
+  if (wasSelected) {
+    const selectedIdx = [...btns].indexOf(wasSelected);
+    resultEl.textContent = selectedIdx === correct ? '✅ Правильно! +100 очок' : '❌ Неправильно!';
+    resultEl.style.color = selectedIdx === correct ? '#00ff7f' : '#ff6666';
+  } else {
+    resultEl.textContent = '⏰ Час вийшов!';
+    resultEl.style.color = 'var(--muted)';
+  }
+}
+
+function quizNext() {
+  quizQIdx++;
+  if (quizQIdx < Math.min(3, state.quizQuestions.length)) {
+    hostShowQuizQuestion();
+  } else {
+    showScreen('screen-game-select');
+    updateRoundCounter();
+  }
+}
+
+// ============================================================
+// BUZZ MINIGAME
+// ============================================================
+let buzzQIdx = 0;
+
+function hostShowBuzzQuestion() {
+  buzzQIdx = 0;
+  _showBuzzQ();
+}
+
+function _showBuzzQ() {
+  const q = state.buzzQuestions[buzzQIdx % state.buzzQuestions.length];
+  state.buzzWinner = null;
+  document.getElementById('buzzQuestion').textContent = q.q;
+  document.getElementById('buzzCorrectAns').textContent = q.a;
+  document.getElementById('buzzAnswer').style.opacity = '0';
+  document.getElementById('buzzStatus').textContent = 'Гравці тиснуть бузер! ⚡';
+  document.getElementById('buzzGivePointBtn').style.display = 'none';
+  document.getElementById('buzzWrongBtn').style.display = 'none';
+  document.getElementById('buzzNextBtn').style.display = 'none';
+
+  broadcastAll({ type: 'start_buzz', payload: { question: q.q } });
+  showScreen('screen-buzz-host');
+}
+
+function playerBuzz() {
+  document.getElementById('buzzPlayerBtn').disabled = true;
+  state.hostConn.send({ type: 'buzz', payload: { name: state.myName, team: state.myTeam } });
+}
+
+function buzzGivePoint() {
+  if (!state.buzzWinner) return;
+  const team = state.buzzWinner.team;
+  state.scores[team] += 150;
+  const p = state.players.find(p => p.id === state.buzzWinner.id);
+  if (p) p.score += 150;
+  updateScoreDisplays();
+  broadcastAll({ type: 'score_update', payload: { scores: state.scores } });
+  document.getElementById('buzzAnswer').style.opacity = '1';
+  document.getElementById('buzzGivePointBtn').style.display = 'none';
+  document.getElementById('buzzWrongBtn').style.display = 'none';
+  document.getElementById('buzzNextBtn').style.display = 'inline-flex';
+  showToast(team === 'boys' ? '👦 Хлопці +150!' : '👧 Дівчата +150!');
+}
+
+function buzzWrong() {
+  document.getElementById('buzzAnswer').style.opacity = '1';
+  document.getElementById('buzzGivePointBtn').style.display = 'none';
+  document.getElementById('buzzWrongBtn').style.display = 'none';
+  document.getElementById('buzzNextBtn').style.display = 'inline-flex';
+  document.getElementById('buzzStatus').textContent += ' — НЕВІРНО ❌';
+}
+
+function buzzNext() {
+  buzzQIdx++;
+  if (buzzQIdx < Math.min(2, state.buzzQuestions.length)) {
+    _showBuzzQ();
+  } else {
+    showScreen('screen-game-select');
+    updateRoundCounter();
+  }
+}
+
+// ============================================================
+// VOTE MINIGAME
+// ============================================================
+let voteQIdx = 0;
+
+function hostShowVoteQuestion() {
+  voteQIdx = 0;
+  _showVoteQ();
+}
+
+function _showVoteQ() {
+  const q = state.voteQuestions[voteQIdx % state.voteQuestions.length];
+  state.votes = {};
+
+  document.getElementById('voteQuestion').textContent = q.q;
+  document.getElementById('voteCountStatus').textContent = `Проголосували: 0/${state.players.length}`;
+  document.getElementById('voteRevealBtn').style.display = 'none';
+  document.getElementById('voteNextBtn').style.display = 'none';
+
+  const optDiv = document.getElementById('voteOptions');
+  optDiv.innerHTML = q.options.map((o, i) =>
+    `<div class="vote-option" id="voteOpt${i}">
+      <span>${o}</span>
+      <div class="vote-bar-wrap"><div class="vote-bar" id="voteBar${i}" style="width:0%"></div></div>
+      <span id="voteCount${i}" style="font-size:0.9rem;color:var(--muted);">0</span>
+    </div>`
+  ).join('');
+
+  broadcastAll({ type: 'start_vote', payload: { question: q.q, options: q.options } });
+  showScreen('screen-vote-host');
+}
+
+function updateVoteDisplay() {
+  const q = state.voteQuestions[voteQIdx % state.voteQuestions.length];
+  const total = state.players.length;
+  q.options.forEach((_, i) => {
+    const cnt = (state.votes[i] || []).length;
+    const el = document.getElementById('voteCount' + i);
+    const bar = document.getElementById('voteBar' + i);
+    if (el) el.textContent = cnt;
+    if (bar) bar.style.width = total > 0 ? (cnt / total * 100) + '%' : '0%';
+  });
+}
+
+function renderPlayerVoteOptions(options) {
+  const div = document.getElementById('playerVoteOptions');
+  div.innerHTML = options.map((o, i) =>
+    `<div class="vote-option" onclick="playerVote(${i})" id="pvOpt${i}">${o}</div>`
+  ).join('');
+}
+
+function playerVote(idx) {
+  if (state.myVote !== null) return;
+  state.myVote = idx;
+  document.querySelectorAll('#playerVoteOptions .vote-option').forEach((el, i) => {
+    if (i === idx) el.classList.add('voted');
+  });
+  state.hostConn.send({ type: 'vote', payload: { optionIdx: idx, name: state.myName, team: state.myTeam } });
+  document.getElementById('votePlayerStatus').textContent = '✅ Голос прийнято!';
+  document.getElementById('votePlayerStatus').style.color = 'var(--gold)';
+}
+
+function revealVotes() {
+  const q = state.voteQuestions[voteQIdx % state.voteQuestions.length];
+  // Find winning option
+  let maxVotes = 0, winIdx = 0;
+  q.options.forEach((_, i) => {
+    const cnt = (state.votes[i] || []).length;
+    if (cnt > maxVotes) { maxVotes = cnt; winIdx = i; }
+  });
+
+  // Award by team voting majority
+  const boysVotes = {}, girlsVotes = {};
+  state.players.forEach(p => {
+    Object.entries(state.votes).forEach(([optIdx, voters]) => {
+      if (voters.includes(p.id)) {
+        if (p.team === 'boys') boysVotes[optIdx] = (boysVotes[optIdx] || 0) + 1;
+        else girlsVotes[optIdx] = (girlsVotes[optIdx] || 0) + 1;
+      }
+    });
+  });
+
+  const boysTop = Object.entries(boysVotes).sort((a,b) => b[1]-a[1])[0]?.[0];
+  const girlsTop = Object.entries(girlsVotes).sort((a,b) => b[1]-a[1])[0]?.[0];
+
+  let winMsg = '';
+  if (boysTop === girlsTop || (!boysTop && !girlsTop)) {
+    state.scores.boys += 60; state.scores.girls += 60;
+    winMsg = '🤝 Обидві команди згодні! +60 кожній';
+  } else if (boysTop === String(winIdx)) {
+    state.scores.boys += 120;
+    winMsg = '👦 Хлопці вгадали більшість! +120';
+  } else if (girlsTop === String(winIdx)) {
+    state.scores.girls += 120;
+    winMsg = '👧 Дівчата вгадали більшість! +120';
+  } else {
+    state.scores.boys += 60; state.scores.girls += 60;
+    winMsg = '🤷 Нічия! +60 кожній команді';
+  }
+
+  updateScoreDisplays();
+  broadcastAll({ type: 'vote_reveal', payload: { winMsg, scores: state.scores } });
+  broadcastAll({ type: 'score_update', payload: { scores: state.scores } });
+
+  // Highlight winning option
+  document.querySelectorAll('#voteOptions .vote-option').forEach((el, i) => {
+    if (i === winIdx) el.style.borderColor = 'var(--gold)';
+  });
+
+  document.getElementById('voteRevealBtn').style.display = 'none';
+  document.getElementById('voteNextBtn').style.display = 'inline-flex';
+  document.getElementById('voteCountStatus').textContent = winMsg;
+}
+
+function voteNext() {
+  voteQIdx++;
+  if (voteQIdx < Math.min(2, state.voteQuestions.length)) {
+    _showVoteQ();
+  } else {
+    showScreen('screen-game-select');
+    updateRoundCounter();
+  }
+}
+
+// ============================================================
+// FINAL RESULTS
+// ============================================================
+function showFinalResults() {
+  const boysWin = state.scores.boys > state.scores.girls;
+  const girlsWin = state.scores.girls > state.scores.boys;
+  const tie = state.scores.boys === state.scores.girls;
+
+  document.getElementById('finalBoysScore').textContent = state.scores.boys;
+  document.getElementById('finalGirlsScore').textContent = state.scores.girls;
+
+  let banner = '';
+  if (boysWin) banner = '👦🏆 ХЛОПЦІ ПЕРЕМОГЛИ! 🎉';
+  else if (girlsWin) banner = '👧🏆 ДІВЧАТА ПЕРЕМОГЛИ! 🎉';
+  else banner = '🤝 НІЧИЯ! 🎊';
+  document.getElementById('winnerBanner').textContent = banner;
+  document.getElementById('winnerBanner').style.color = boysWin ? 'var(--blue-light)' : girlsWin ? 'var(--pink-light)' : 'var(--gold)';
+
+  // Scoreboard
+  const sorted = [...state.players].sort((a, b) => b.score - a.score);
+  const ranks = ['gold', 'silver', 'bronze'];
+  document.getElementById('playerScoreboard').innerHTML = sorted.map((p, i) => `
+    <div class="scoreboard-row">
+      <div class="rank ${ranks[i] || ''}">${i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : i+1}</div>
+      <div class="player-name">
+        <span class="player-chip ${p.team}">${p.team === 'boys' ? '👦' : '👧'} ${p.name}</span>
+      </div>
+      <div class="player-pts" style="color:var(--gold);">${p.score} очок</div>
+    </div>
+  `).join('');
+
+  broadcastAll({ type: 'game_over', payload: { scores: state.scores, winner: boysWin ? 'boys' : girlsWin ? 'girls' : 'tie' } });
+  showScreen('screen-results');
+}
+
+function showFinalResultsPlayer({ scores, winner }) {
+  state.scores = scores;
+  showScreen('screen-results');
+  document.getElementById('finalBoysScore').textContent = scores.boys;
+  document.getElementById('finalGirlsScore').textContent = scores.girls;
+
+  let banner = '';
+  if (winner === 'boys') banner = '👦🏆 ХЛОПЦІ ПЕРЕМОГЛИ!';
+  else if (winner === 'girls') banner = '👧🏆 ДІВЧАТА ПЕРЕМОГЛИ!';
+  else banner = '🤝 НІЧИЯ!';
+  document.getElementById('winnerBanner').textContent = banner;
+
+  const myWin = (winner === state.myTeam);
+  const resultMsg = document.createElement('div');
+  resultMsg.className = 'result-message ' + (myWin ? 'win' : winner === 'tie' ? '' : 'lose');
+  resultMsg.textContent = myWin ? '🎉 ТВОЯ КОМАНДА ПЕРЕМОГЛА!' : winner === 'tie' ? '🤝 НІЧИЯ!' : '😔 Наступного разу повезе!';
+  document.getElementById('winnerBanner').after(resultMsg);
+
+  document.getElementById('playerScoreboard').innerHTML = '';
+}
+
+function restartGame() {
+  if (state.isHost) {
+    state.scores = { boys: 0, girls: 0 };
+    state.roundNumber = 0;
+    updateScoreDisplays();
+    startGame();
+  } else {
+    showScreen('screen-player-lobby');
+  }
+}
+</script>
+</body>
+</html>
